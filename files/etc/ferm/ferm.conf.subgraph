@@ -1,0 +1,88 @@
+# -*- mode: conf[space] -*-
+#
+#  Configuration file for ferm(1).
+#
+
+# Command to determine local subnets, will ignore non-RFC1918 addresses
+@def $SUBNETS = (`ip -o -f inet addr show | fgrep -v oz0 | awk '/scope global/ {print $4}' | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)' || echo ''`);
+
+@include 'ferm.d/';
+
+domain ip {
+    table nat {
+        chain PREROUTING {
+            policy ACCEPT;
+
+        }
+
+	chain METAPROXY {
+	    @if $SUBNETS {
+	        daddr ($SUBNETS) {
+		    RETURN;
+	        }
+            }
+            daddr 127.0.0.1/8 RETURN;
+	    proto tcp mod owner uid-owner debian-tor RETURN;
+	    proto tcp REDIRECT to-ports 8675;
+	}
+
+        chain OUTPUT {
+            policy ACCEPT;
+            proto tcp mod mark mark 1 RETURN;
+            daddr 127.192.0.0/10 proto tcp REDIRECT to-ports 9040;
+            daddr 127.0.0.1 proto udp dport 53 REDIRECT to-ports 5353;
+	    proto tcp jump METAPROXY;
+        }
+    }
+
+    table filter {
+        chain INPUT {
+            policy DROP;
+            mod state state (RELATED ESTABLISHED) ACCEPT;
+            interface lo ACCEPT;
+        }
+
+	chain OUTPUT {
+            policy DROP; 
+            mod state state (RELATED ESTABLISHED) ACCEPT;
+                       
+            outerface lo {
+
+                    daddr 127.0.0.1 proto tcp syn {
+                            ACCEPT;
+                    }   
+
+                    daddr 127.0.0.1 proto udp {
+                            ACCEPT;
+                    }   
+            }
+
+            daddr 127.0.0.1 proto tcp syn mod multiport destination-ports (8675) {
+                    ACCEPT;
+            }
+
+	    @if $SUBNETS {
+                daddr ($SUBNETS) @subchain "lan" {
+                    proto tcp dport domain REJECT;
+                    proto udp dport domain REJECT;
+                    ACCEPT;
+                }
+            }   
+
+            mod owner uid-owner debian-tor ACCEPT;
+
+            REJECT reject-with icmp-port-unreachable;
+        }
+
+        chain FORWARD {
+                policy DROP;
+        }   
+    }
+}
+
+domain eb chain FORWARD {
+    policy DROP;
+    interface oz0 ACCEPT;
+    outerface oz0 ACCEPT;
+}
+
