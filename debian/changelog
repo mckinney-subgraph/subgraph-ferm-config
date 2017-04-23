@@ -1,4 +1,11 @@
-subgraph-ferm-config (0.8) UNRELEASED; urgency=medium
+subgraph-ferm-config (0.8.1-1) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload.
+  * git-buildpackage
+
+ -- Alexsandr Kibal <ak@subgraph.com>  Sun, 23 Apr 2017 19:27:57 +0000
+
+subgraph-ferm-config (0.8) unstable; urgency=medium
 
   * Corrected lan exception rule ($SUBNETS) to calculate for any size of
     network and ignore RFC1918 networks in cases where user receives public IP. 
