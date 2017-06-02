@@ -4,7 +4,8 @@
 #
 
 # Command to determine local subnets, will ignore non-RFC1918 addresses
-@def $SUBNETS = (`ip -o -f inet addr show | fgrep -v oz0 | awk '/scope global/ {print $4}' | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)' || echo ''`);
+@def $SUBNETS = (`ip -o -f inet addr show | fgrep -v oz- | awk '/scope global/ {print $4}' | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)' || echo ''`);
+@def $OZ_VPN_GID_EXISTS = (`getent group oz-openvpn || echo ''`);
 
 @include 'ferm.d/';
 
@@ -12,7 +13,6 @@ domain ip {
     table nat {
         chain PREROUTING {
             policy ACCEPT;
-
         }
 
 	chain METAPROXY {
@@ -21,13 +21,19 @@ domain ip {
 		    RETURN;
 	        }
             }
+
             daddr 127.0.0.1/8 RETURN;
 	    proto tcp mod owner uid-owner debian-tor RETURN;
+            @if $OZ_VPN_GID_EXISTS {
+	        proto tcp mod owner gid-owner oz-openvpn RETURN;
+	        proto udp mod owner gid-owner oz-openvpn RETURN;
+            }
 	    proto tcp REDIRECT to-ports 8675;
 	}
 
         chain OUTPUT {
             policy ACCEPT;
+
             proto tcp mod mark mark 1 RETURN;
             daddr 127.192.0.0/10 proto tcp REDIRECT to-ports 9040;
             daddr 127.0.0.1 proto udp dport 53 REDIRECT to-ports 5353;
@@ -38,16 +44,18 @@ domain ip {
     table filter {
         chain INPUT {
             policy DROP;
+
             mod state state (RELATED ESTABLISHED) ACCEPT;
+            
             interface lo ACCEPT;
         }
 
 	chain OUTPUT {
-            policy DROP; 
+            policy DROP;
+
             mod state state (RELATED ESTABLISHED) ACCEPT;
                        
             outerface lo {
-
                     daddr 127.0.0.1 proto tcp syn {
                             ACCEPT;
                     }   
@@ -61,15 +69,21 @@ domain ip {
                     ACCEPT;
             }
 
+
 	    @if $SUBNETS {
                 daddr ($SUBNETS) @subchain "lan" {
                     proto tcp dport domain REJECT;
                     proto udp dport domain REJECT;
+        
                     ACCEPT;
                 }
             }   
 
+	    outerface tun+ ACCEPT;
             mod owner uid-owner debian-tor ACCEPT;
+            @if $OZ_VPN_GID_EXISTS { 
+	        mod owner gid-owner oz-openvpn ACCEPT;
+            }
 
             REJECT reject-with icmp-port-unreachable;
         }
@@ -78,11 +92,5 @@ domain ip {
                 policy DROP;
         }   
     }
-}
-
-domain eb chain FORWARD {
-    policy DROP;
-    interface oz0 ACCEPT;
-    outerface oz0 ACCEPT;
 }
 
