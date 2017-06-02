@@ -1,4 +1,13 @@
-subgraph-ferm-config (0.8.1-1) UNRELEASED; urgency=medium
+
+subgraph-ferm-config (0.9.0-1) unstable; urgency=medium
+
+  * Added Oz bridges and openvpn rules, 
+  * Added cleanups/checks.
+  * Disabled the ferm cache.
+
+ -- David McKinney <mckinney@subgraph.com>  Fri, 02 Jun 2017 19:15:03 +0000
+
+subgraph-ferm-config (0.8.1-1) unstable; urgency=medium
 
   * Non-maintainer upload.
   * git-buildpackage
