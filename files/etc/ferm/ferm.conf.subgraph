@@ -4,7 +4,7 @@
 #
 
 # Command to determine local subnets, will ignore non-RFC1918 addresses
-@def $SUBNETS = (`ip -o -f inet addr show | fgrep -v oz- | awk '/scope global/ {print $4}' | grep -E '^(192\.168|10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.)' || echo ''`);
+@def $SUBNETS = ( `/usr/lib/subgraph-ferm-config/get_private_subnets.py || echo ''` );
 @def $OZ_VPN_GID_EXISTS = (`getent group oz-openvpn || echo ''`);
 
 @include 'ferm.d/';
