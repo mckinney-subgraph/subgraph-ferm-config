@@ -10,7 +10,7 @@ Homepage: https://subgraph.com/sgos/index.en.html
 
 Package: subgraph-ferm-config
 Architecture: any
-Depends: ${misc:Depends}, ferm                                                        
+Depends: ${misc:Depends}, ferm, python-ipaddress                                                        
 Provides: ${diverted-files}                                                     
 Conflicts: ${diverted-files}                                                    
 Description: ferm firewall configuration package for Subgraph OS.                         
