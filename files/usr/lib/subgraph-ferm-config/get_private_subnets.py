@@ -14,6 +14,12 @@ RFC1918 = [
     IPv4Network(u'10.0.0.0/8')
 ]
 
+def get_addr(line):                                                              
+    if re.match(r'.+scope global.+', line):                                      
+        fields = line.split()                                                    
+        if not re.match(r'^oz', fields[1]):                                      
+            return fields[3]
+
 def get_private_subnets(addrs):
     """
     >>> addrs = [
@@ -43,12 +49,14 @@ def get_private_subnets(addrs):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        addrs = subprocess.check_output(
-            "ip -o -f inet addr show |"
-            " fgrep -v oz- | awk '/scope global/ {print $4}'",
-            shell=True).strip().split('\n')
+        all_addrs = subprocess.check_output(                                     
+             ["/bin/ip", "-o", "-f", "inet", "addr", "show"]).strip().split('\n')
+        addrs = []
+        for line in all_addrs:                                                   
+            addr = get_addr(line)                                                
+            if addr != None:                                                      
+                addrs.append(addr)  
         print "\n".join( get_private_subnets(addrs) )
     else:
         import doctest
         doctest.testmod(verbose=1)
-
