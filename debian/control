@@ -9,7 +9,7 @@ Homepage: https://subgraph.com/sgos/index.en.html
 #Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/subgraph-ferm-config.git;a=summary
 
 Package: subgraph-ferm-config
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, ferm, python-ipaddress                                                        
 Provides: ${diverted-files}                                                     
 Conflicts: ${diverted-files}                                                    
