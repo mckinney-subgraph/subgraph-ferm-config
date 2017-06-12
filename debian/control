@@ -2,7 +2,7 @@ Source: subgraph-ferm-config
 Section: config
 Priority: extra
 Maintainer: David McKinney <mckinney@subgraph.com>
-Build-Depends: debhelper (>= 9), config-package-dev, dh_python2
+Build-Depends: debhelper (>= 9), config-package-dev, dh-python
 Standards-Version: 3.9.6
 Homepage: https://subgraph.com/sgos/index.en.html
 #Vcs-Git: git://anonscm.debian.org/collab-maint/subgraph-ferm-config.git
