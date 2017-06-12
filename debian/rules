@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --with=config-package --with=python2
+	dh $@ --with=config-package,python2
 
 
 
