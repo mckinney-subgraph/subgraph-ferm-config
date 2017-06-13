@@ -5,6 +5,7 @@ This script prints out the RFC1918 subnets that we are currently part of.
 """
 
 from ipaddress import IPv4Network, IPv4Address
+import re
 import subprocess
 import sys
 
