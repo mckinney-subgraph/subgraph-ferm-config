@@ -1,3 +1,9 @@
+subgraph-ferm-config (0.9.2-1) UNRELEASED; urgency=medium
+
+  * Fixed lan exception script
+
+ -- David McKinney <mckinney@subgraph.com>  Tue, 13 Jun 2017 14:39:55 +0000
+
 subgraph-ferm-config (0.9.1-1) unstable; urgency=medium
 
   * Added script to better determine RFC1918 subnets for lan exceptions
